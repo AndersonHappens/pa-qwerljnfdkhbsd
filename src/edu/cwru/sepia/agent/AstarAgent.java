@@ -1,3 +1,7 @@
+/* Joseph Tate, jgt17
+ * Jake Anderson, jta40
+ */
+
 package edu.cwru.sepia.agent;
 
 import edu.cwru.sepia.action.Action;
