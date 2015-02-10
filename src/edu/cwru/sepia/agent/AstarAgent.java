@@ -299,8 +299,41 @@ public class AstarAgent extends Agent {
      */
     private Stack<MapLocation> AstarSearch(MapLocation start, MapLocation goal, int xExtent, int yExtent, MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations)
     {
+    	PriorityQueue openset = new PriorityQueue<Location>(xExtent*yExtent - resourceLocations.size() - 1, new LocationComparator());
+    	Stack<MapLocation> closedList = new Stack<MapLocation>();
+    	openset.add(new Location(start, 0));
+    	while(!openset.isEmpty()) {
+    		
+    	}
         // return an empty path
-        return new Stack<MapLocation>();
+        return closedList;
+    }
+    
+    private int heuristic(MapLocation start, MapLocation goal) {
+    	return Math.max(Math.abs(goal.x - start.x), Math.abs(goal.y - start.y));
+    }
+    
+    private class Location {
+    	MapLocation location;
+    	int gscore;
+    	
+	    public Location(MapLocation loc, int g) {
+	    	location = loc;
+	    	gscore = g;
+	    }
+	    
+    }
+    
+    private class LocationComparator implements Comparator<Location> {
+
+		@Override
+		public int compare(Location l1, Location l2) {
+			if(l1.gscore >= l2.gscore) {
+				return 1;
+			}
+			return -1;
+		}
+    	
     }
 
     /**
