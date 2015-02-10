@@ -31,6 +31,17 @@ public class AstarAgent extends Agent {
             this.cameFrom=cameFrom;//added
             this.cost=cost;//added
         }
+        
+        //equals method added
+        public boolean equals(Object other) {
+             if(other instanceof MapLocation) {
+                  if(this.x==((MapLocation) other).x &&
+                     this.y==((MapLocation) other).y) {
+                       return true;
+                  }
+             }
+             return false;
+        }
     }
 
     Stack<MapLocation> path;
@@ -317,6 +328,30 @@ public class AstarAgent extends Agent {
         // return an empty path
         return closedList;
 
+    }
+    
+    private void expand(PriorityQueue<MapLocation> openList, MapLocation loc, int xExtent, int yExtent, MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations) {
+         /*if(openList.contains(loc)) {
+              MapLocation oldLoc=openList.remove(loc);
+              if(oldLoc.cost<loc.cost) {
+                   openList.add(oldLoc);
+              }
+              else {
+                   openList.add(loc);
+              }
+         }*/
+    }
+    
+    private boolean isValid(MapLocation loc, int xExtent, int yExtent, MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations) {
+         if(loc.x>=0 && loc.x<xExtent &&
+            loc.y>=0 && loc.y<yExtent &&
+            (enemyFootmanLoc==null || loc.equals(enemyFootmanLoc)) &&
+            (resourceLocations==null || resourceLocations.contains(loc)==false)) {
+              return true;
+         }
+         else {
+              return false;
+         }
     }
     
     private int heuristic(MapLocation start, MapLocation goal) {
