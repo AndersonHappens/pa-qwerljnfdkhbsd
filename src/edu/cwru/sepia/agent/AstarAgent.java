@@ -20,6 +20,7 @@ public class AstarAgent extends Agent {
     class MapLocation
     {
         public int x, y;
+        float cost;
 
         public MapLocation(int x, int y, MapLocation cameFrom, float cost)
         {
@@ -299,7 +300,7 @@ public class AstarAgent extends Agent {
      */
     private Stack<MapLocation> AstarSearch(MapLocation start, MapLocation goal, int xExtent, int yExtent, MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations)
     {
-    	PriorityQueue openset = new PriorityQueue<Location>(xExtent*yExtent - resourceLocations.size() - 1, new LocationComparator());
+    	PriorityQueue openset = new PriorityQueue<MapLocation>(xExtent*yExtent - resourceLocations.size() - 1, new LocationComparator());
     	Stack<MapLocation> closedList = new Stack<MapLocation>();
     	openset.add(new Location(start, 0));
     	while(!openset.isEmpty()) {
@@ -324,11 +325,11 @@ public class AstarAgent extends Agent {
 	    
     }
     
-    private class LocationComparator implements Comparator<Location> {
+    private class LocationComparator implements Comparator<MapLocation> {
 
 		@Override
-		public int compare(Location l1, Location l2) {
-			if(l1.gscore >= l2.gscore) {
+		public int compare(MapLocation l1, MapLocation l2) {
+			if(l1.cost >= l2.cost) {
 				return 1;
 			}
 			return -1;
