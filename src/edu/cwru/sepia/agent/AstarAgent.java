@@ -363,9 +363,13 @@ public class AstarAgent extends Agent {
     			}
     		}
     		closedList.put(loc, loc);
+    		
     	}
     	if(!goalFound) {
     		return null;
+    	}
+    	for(MapLocation key: closedList.values()){
+    		System.out.println(loc.x + "," + loc.y);
     	}
         // return an empty path
         return calculateStack(loc);
