@@ -368,9 +368,7 @@ public class AstarAgent extends Agent {
     	     System.out.println("No available path");
     		return new Stack<MapLocation>();
     	}
-    	for(MapLocation key: closedList.values()){
-    		System.out.println(loc.x + "," + loc.y);
-    	}
+
         // return an empty path
         return calculateStack(loc);
 
