@@ -34,6 +34,9 @@ public class AstarAgent extends Agent {
         
         //equals method added
         public boolean equals(Object other) {
+             if(other==null) {
+                  return false;
+             }
              if(other instanceof MapLocation) {
                   if(this.x==((MapLocation) other).x &&
                      this.y==((MapLocation) other).y) {
@@ -41,6 +44,11 @@ public class AstarAgent extends Agent {
                   }
              }
              return false;
+        }
+        
+        //hashcode method added
+        public int hashCode() {
+             return x*1024+y;
         }
         
         public String toString() {
@@ -321,7 +329,6 @@ public class AstarAgent extends Agent {
      * @return Stack of positions with top of stack being first move in plan
      */
     
-    //WHY DO WE NEED A CLOSED LIST??
     private Stack<MapLocation> AstarSearch(MapLocation start, MapLocation goal, int xExtent, int yExtent, MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations)
     {
     	boolean goalFound = false;
@@ -330,7 +337,7 @@ public class AstarAgent extends Agent {
     	openset.add(new MapLocation(start.x,start.y, start, 0));
     	MapLocation loc = null;
     	while(!openset.isEmpty() && !goalFound) {
-    		loc = openset.remove();
+    	     loc = openset.remove();
     		for(MapLocation child: getChildren(openset, loc, xExtent, yExtent, enemyFootmanLoc, resourceLocations, goal)) {
     			if (child.equals(goal)) {
     				goalFound = true;
@@ -344,32 +351,12 @@ public class AstarAgent extends Agent {
          			          break;
     			          }
     			     }
-    			 if(temp.cost >= child.cost) {
-                     iterator.remove();
-                     openset.offer(child);
-                }
-    				/*MapLocation compare = null;
-    				LinkedList<MapLocation> removedList = new LinkedList<MapLocation>();
-    				boolean check = true;
-    				
-    				while(check) {
-    					compare = openset.remove();
-    					check = !child.equals(compare);
-    					if(check) {
-    						removedList.add(compare);
-    					}
-    				}*/
-    				
-    				
-    				
-    				/*while(!removedList.isEmpty()) {
-    					openset.offer(removedList.removeLast());
-    				}*/
+         			if(temp.cost >= child.cost) {
+                         iterator.remove();
+                         openset.offer(child);
+                    }
     			} else if(closedList.containsKey(child)) {
-    				if(closedList.get(child).cost > child.cost) {
-    					closedList.remove(child);
-    					closedList.put(child, child);
-    				}
+    			     continue;
     			} else {
     				openset.add(child);
     			}
@@ -378,7 +365,8 @@ public class AstarAgent extends Agent {
     		
     	}
     	if(!goalFound) {
-    		return null;
+    	     System.out.println("No available path");
+    		return new Stack<MapLocation>();
     	}
     	for(MapLocation key: closedList.values()){
     		System.out.println(loc.x + "," + loc.y);
@@ -392,16 +380,16 @@ public class AstarAgent extends Agent {
     private Stack<MapLocation> calculateStack(MapLocation end) {
     	Stack<MapLocation> endList = new Stack<MapLocation>();
     	MapLocation currentNode = end;
-    	while(currentNode!=null) {
+    	while(currentNode.cameFrom!=null) {
     		endList.push(currentNode);
     		currentNode = currentNode.cameFrom;
     	}
-    	System.out.println(endList);
+    	endList.pop();
     	return endList;
     }
     
     private LinkedList<MapLocation> getChildren(PriorityQueue<MapLocation> openList, MapLocation loc, int xExtent, int yExtent, MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations, MapLocation goal) {
-    	LinkedList<MapLocation> locList= new LinkedList<MapLocation>();
+         LinkedList<MapLocation> locList= new LinkedList<MapLocation>();
     	if(isValid(loc.x-1, loc.y-1, xExtent, yExtent, enemyFootmanLoc, resourceLocations)) {
     		locList.add(new MapLocation(loc.x-1, loc.y-1, loc, loc.cost + heuristic(loc.x-1, loc.y-1, goal)));
     	}
