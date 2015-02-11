@@ -243,18 +243,20 @@ public class AstarAgent extends Agent {
      */
     private boolean shouldReplanPath(State.StateView state, History.HistoryView history, Stack<MapLocation> currentPath)
     {
-        if(currentPath==null) {
+        /*if(currentPath==null) {
              return true;
         } else if(currentPath.isEmpty()) {
              return false;
         }
-        int enemyX=state.getUnit(enemyFootmanID).getXPosition()-currentPath.peek().x;
-        int enemyY=state.getUnit(enemyFootmanID).getYPosition()-currentPath.peek().y;
-        if(Math.abs(enemyX)<1 && Math.abs(enemyY)<1) {
+        MapLocation peek=currentPath.peek();
+        int enemyX=state.getUnit(enemyFootmanID).getXPosition()-peek.x;
+        int enemyY=state.getUnit(enemyFootmanID).getYPosition()-peek.y;
+        if(enemyX==0 && enemyY==1) {
              return true;
         } else {
              return false;
-        }
+        }*/
+         return false;
     }
 
     /**
