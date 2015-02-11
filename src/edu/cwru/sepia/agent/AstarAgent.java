@@ -42,6 +42,10 @@ public class AstarAgent extends Agent {
              }
              return false;
         }
+        
+        public String toString() {
+             return "\n("+x+","+y+")";
+        }
     }
 
     Stack<MapLocation> path;
@@ -383,25 +387,13 @@ public class AstarAgent extends Agent {
     
     private Stack<MapLocation> calculateStack(MapLocation end) {
     	Stack<MapLocation> endList = new Stack<MapLocation>();
-    	MapLocation currentNode = end.cameFrom;
-    	while(currentNode.cameFrom!=null) {
+    	MapLocation currentNode = end;
+    	while(currentNode!=null) {
     		endList.push(currentNode);
     		currentNode = currentNode.cameFrom;
     	}
     	System.out.println(endList);
     	return endList;
-    }
-    //Not sure what you wanted to do with this...
-    private void expand(PriorityQueue<MapLocation> openList, MapLocation loc, int xExtent, int yExtent, MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations) {
-         /*if(openList.contains(loc)) {
-              MapLocation oldLoc=openList.remove(loc);
-              if(oldLoc.cost<loc.cost) {
-                   openList.add(oldLoc);
-              }
-              else {
-                   openList.add(loc);
-              }
-         }*/
     }
     
     private LinkedList<MapLocation> getChildren(PriorityQueue<MapLocation> openList, MapLocation loc, int xExtent, int yExtent, MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations, MapLocation goal) {
