@@ -250,7 +250,7 @@ public class AstarAgent extends Agent {
         }
         int enemyX=state.getUnit(enemyFootmanID).getXPosition()-currentPath.peek().x;
         int enemyY=state.getUnit(enemyFootmanID).getYPosition()-currentPath.peek().y;
-        if(Math.abs(enemyX)<5 && Math.abs(enemyY)<5) {
+        if(Math.abs(enemyX)<1 && Math.abs(enemyY)<1) {
              return true;
         } else {
              return false;
