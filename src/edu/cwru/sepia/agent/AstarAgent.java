@@ -50,7 +50,7 @@ public class AstarAgent extends Agent {
         public int hashCode() {
              return x*1024+y;
         }
-        
+        //added for debugging
         public String toString() {
              return "\n("+x+","+y+")";
         }
@@ -243,7 +243,13 @@ public class AstarAgent extends Agent {
      */
     private boolean shouldReplanPath(State.StateView state, History.HistoryView history, Stack<MapLocation> currentPath)
     {
-        return false;
+        int enemyX=state.getUnit(enemyFootmanID).getXPosition();
+        int enemyY=state.getUnit(enemyFootmanID).getYPosition();
+        if(enemyX==currentPath.peek().x && enemyY==currentPath.peek().y) {
+             return true;
+        } else {
+             return false;
+        }
     }
 
     /**
