@@ -42,6 +42,10 @@ public class AstarAgent extends Agent {
              }
              return false;
         }
+        
+        public String toString() {
+             return "\n("+x+","+y+")";
+        }
     }
 
     Stack<MapLocation> path;
@@ -332,7 +336,19 @@ public class AstarAgent extends Agent {
     				goalFound = true;
     				break;
     			} else if(openset.contains(child)) {
-    				MapLocation compare = null;
+    			     Iterator<MapLocation> iterator=openset.iterator();
+    			     MapLocation temp=null;
+    			     while(iterator.hasNext()) {
+    			          temp=iterator.next();
+    			          if(child.equals(temp)) {
+         			          break;
+    			          }
+    			     }
+    			 if(temp.cost >= child.cost) {
+                     iterator.remove();
+                     openset.offer(child);
+                }
+    				/*MapLocation compare = null;
     				LinkedList<MapLocation> removedList = new LinkedList<MapLocation>();
     				boolean check = true;
     				
@@ -342,17 +358,13 @@ public class AstarAgent extends Agent {
     					if(check) {
     						removedList.add(compare);
     					}
-    				}
+    				}*/
     				
-    				if(compare.cost >= child.cost) {
-    					openset.offer(child);
-    				} else {
-    					openset.offer(compare);
-    				}
     				
-    				while(!removedList.isEmpty()) {
+    				
+    				/*while(!removedList.isEmpty()) {
     					openset.offer(removedList.removeLast());
-    				}
+    				}*/
     			} else if(closedList.containsKey(child)) {
     				if(closedList.get(child).cost > child.cost) {
     					closedList.remove(child);
@@ -384,19 +396,8 @@ public class AstarAgent extends Agent {
     		endList.push(currentNode);
     		currentNode = currentNode.cameFrom;
     	}
+    	System.out.println(endList);
     	return endList;
-    }
-    //Not sure what you wanted to do with this...
-    private void expand(PriorityQueue<MapLocation> openList, MapLocation loc, int xExtent, int yExtent, MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations) {
-         /*if(openList.contains(loc)) {
-              MapLocation oldLoc=openList.remove(loc);
-              if(oldLoc.cost<loc.cost) {
-                   openList.add(oldLoc);
-              }
-              else {
-                   openList.add(loc);
-              }
-         }*/
     }
     
     private LinkedList<MapLocation> getChildren(PriorityQueue<MapLocation> openList, MapLocation loc, int xExtent, int yExtent, MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations, MapLocation goal) {
