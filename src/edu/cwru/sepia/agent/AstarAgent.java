@@ -32,7 +32,7 @@ public class AstarAgent extends Agent {
             this.cost=cost;//added
         }
         
-        //equals method added
+        //equals method to test if map locations are equal
         public boolean equals(Object other) {
              if(other==null) {
                   return false;
@@ -46,7 +46,7 @@ public class AstarAgent extends Agent {
              return false;
         }
         
-        //hashcode method added
+        //hashcode overridden for contains
         public int hashCode() {
              return x*1024+y;
         }
@@ -248,6 +248,7 @@ public class AstarAgent extends Agent {
         } else if(currentPath.isEmpty()) {
              return false;
         }
+        //get next location in path
         MapLocation peek=currentPath.peek();
         int enemyX=state.getUnit(enemyFootmanID).getXPosition()-peek.x;
         int enemyY=state.getUnit(enemyFootmanID).getYPosition()-peek.y;
@@ -293,7 +294,7 @@ public class AstarAgent extends Agent {
         return AstarSearch(startLoc, goalLoc, state.getXExtent(), state.getYExtent(), footmanLoc, resourceLocations);
     }
     
-    //Begin Added Code
+   
     
     /**
      * This is the method you will implement for the assignment. Your implementation
@@ -344,17 +345,23 @@ public class AstarAgent extends Agent {
     private Stack<MapLocation> AstarSearch(MapLocation start, MapLocation goal, int xExtent, int yExtent, MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations)
     {
     	boolean goalFound = false;
+    	//define a priority queue of the size of all open spaces on the map 
     	PriorityQueue<MapLocation> openset = new PriorityQueue<MapLocation>(xExtent*yExtent - resourceLocations.size() - 1, new LocationComparator());
     	Hashtable<MapLocation, MapLocation> closedList = new Hashtable<MapLocation, MapLocation>();
+    	// add initial start location
     	openset.add(new MapLocation(start.x,start.y, start, 0));
     	MapLocation loc = null;
+    	//while the openset has children to go through and the goal hasnt been found yet
     	while(!openset.isEmpty() && !goalFound) {
     	     loc = openset.remove();
+    	     //get all currounding valid children
     		for(MapLocation child: getChildren(openset, loc, xExtent, yExtent, enemyFootmanLoc, resourceLocations, goal)) {
+    			//if we have found the goal, stop the search
     			if (child.equals(goal)) {
     				goalFound = true;
     				break;
     			} else if(openset.contains(child)) {
+    				//iterate through the openset until we found the child node we are looking for
     			     Iterator<MapLocation> iterator=openset.iterator();
     			     MapLocation temp=null;
     			     while(iterator.hasNext()) {
@@ -363,73 +370,111 @@ public class AstarAgent extends Agent {
          			          break;
     			          }
     			     }
+    			     //if the cost of the node already in the openset is more expensive than the child, remove it and add the child
          			if(temp.cost >= child.cost) {
                          iterator.remove();
                          openset.offer(child);
                     }
     			} else if(closedList.containsKey(child)) {
+    				//don't add it to the openset if it is already contained in the closedList
     			     continue;
     			} else {
     				openset.add(child);
     			}
     		}
+    		//add the location to the closed list after going through all of it's children
     		closedList.put(loc, loc);
     		
     	}
     	if(!goalFound) {
     	     System.out.println("No available path");
+    	  // return an empty path if no goal is found
     		return new Stack<MapLocation>();
     	}
 
-        // return an empty path
+        
         return calculateStack(loc);
 
     }
     
-    
+    /**
+     * Given the ending node, calculates the path necessary to get from start to finish.
+     * @param end
+     * @return
+     */
     private Stack<MapLocation> calculateStack(MapLocation end) {
     	Stack<MapLocation> endList = new Stack<MapLocation>();
     	MapLocation currentNode = end;
+    	//while the parent exists, add the node to the endList
     	while(currentNode.cameFrom!=null) {
     		endList.push(currentNode);
     		currentNode = currentNode.cameFrom;
     	}
+    	//remove the start node from the stack 
     	endList.pop();
     	return endList;
     }
     
+    /**
+     * Goes through all 8 surrounding tiles and checks if they are valid maplocations. 
+     * If they are, adds a new MapLocation to the list with cost equal to the cost of loc plus the heuristic.
+     * Manually checks all 8 to keep down on number of calls.
+     * @param openList
+     * @param loc
+     * @param xExtent
+     * @param yExtent
+     * @param enemyFootmanLoc
+     * @param resourceLocations
+     * @param goal
+     * @return
+     */
     private LinkedList<MapLocation> getChildren(PriorityQueue<MapLocation> openList, MapLocation loc, int xExtent, int yExtent, MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations, MapLocation goal) {
          LinkedList<MapLocation> locList= new LinkedList<MapLocation>();
-    	if(isValid(loc.x-1, loc.y-1, xExtent, yExtent, enemyFootmanLoc, resourceLocations)) {
-    		locList.add(new MapLocation(loc.x-1, loc.y-1, loc, loc.cost + heuristic(loc.x-1, loc.y-1, goal)));
+         //precalculate the locations and cost to save on time
+         int xLoc = loc.x;
+         int yLoc = loc.y;
+         float locCost = loc.cost;
+    	if(isValid(xLoc-1, yLoc-1, xExtent, yExtent, enemyFootmanLoc, resourceLocations)) {
+    		locList.add(new MapLocation(xLoc-1, yLoc-1, loc, locCost + heuristic(xLoc-1, yLoc-1, goal)));
     	}
-    	if(isValid(loc.x, loc.y-1, xExtent, yExtent, enemyFootmanLoc, resourceLocations)) {
-    		locList.add(new MapLocation(loc.x, loc.y-1, loc, loc.cost + heuristic(loc.x, loc.y-1, goal)));
+    	if(isValid(xLoc, yLoc-1, xExtent, yExtent, enemyFootmanLoc, resourceLocations)) {
+    		locList.add(new MapLocation(xLoc, yLoc-1, loc, locCost + heuristic(xLoc, yLoc-1, goal)));
     	}
-    	if(isValid(loc.x+1, loc.y-1, xExtent, yExtent, enemyFootmanLoc, resourceLocations)) {
-    		locList.add(new MapLocation(loc.x+1, loc.y-1, loc, loc.cost + heuristic(loc.x+1, loc.y-1, goal)));
+    	if(isValid(xLoc+1, yLoc-1, xExtent, yExtent, enemyFootmanLoc, resourceLocations)) {
+    		locList.add(new MapLocation(xLoc+1, yLoc-1, loc, locCost + heuristic(xLoc+1, yLoc-1, goal)));
     	}
-    	if(isValid(loc.x-1, loc.y, xExtent, yExtent, enemyFootmanLoc, resourceLocations)) {
-    		locList.add(new MapLocation(loc.x-1, loc.y, loc, loc.cost + heuristic(loc.x-1, loc.y, goal)));
+    	if(isValid(xLoc-1, yLoc, xExtent, yExtent, enemyFootmanLoc, resourceLocations)) {
+    		locList.add(new MapLocation(xLoc-1, yLoc, loc, locCost + heuristic(xLoc-1, yLoc, goal)));
     	}
-    	if(isValid(loc.x+1, loc.y, xExtent, yExtent, enemyFootmanLoc, resourceLocations)) {
-    		locList.add(new MapLocation(loc.x+1, loc.y, loc, loc.cost + heuristic(loc.x+1, loc.y, goal)));
+    	if(isValid(xLoc+1, yLoc, xExtent, yExtent, enemyFootmanLoc, resourceLocations)) {
+    		locList.add(new MapLocation(xLoc+1, yLoc, loc, locCost + heuristic(xLoc+1, yLoc, goal)));
     	}
-    	if(isValid(loc.x-1, loc.y+1, xExtent, yExtent, enemyFootmanLoc, resourceLocations)) {
-    		locList.add(new MapLocation(loc.x-1, loc.y+1, loc, loc.cost + heuristic(loc.x-1, loc.y+1, goal)));
+    	if(isValid(xLoc-1, yLoc+1, xExtent, yExtent, enemyFootmanLoc, resourceLocations)) {
+    		locList.add(new MapLocation(xLoc-1, yLoc+1, loc, locCost + heuristic(xLoc-1, yLoc+1, goal)));
     	}
-    	if(isValid(loc.x, loc.y+1, xExtent, yExtent, enemyFootmanLoc, resourceLocations)) {
-    		locList.add(new MapLocation(loc.x, loc.y+1, loc, loc.cost + heuristic(loc.x, loc.y+1, goal)));
+    	if(isValid(xLoc, yLoc+1, xExtent, yExtent, enemyFootmanLoc, resourceLocations)) {
+    		locList.add(new MapLocation(xLoc, yLoc+1, loc, locCost + heuristic(xLoc, yLoc+1, goal)));
     	}
-    	if(isValid(loc.x+1, loc.y+1, xExtent, yExtent, enemyFootmanLoc, resourceLocations)) {
-    		locList.add(new MapLocation(loc.x+1, loc.y+1, loc, loc.cost + heuristic(loc.x+1, loc.y+1, goal)));
+    	if(isValid(xLoc+1, yLoc+1, xExtent, yExtent, enemyFootmanLoc, resourceLocations)) {
+    		locList.add(new MapLocation(xLoc+1, yLoc+1, loc, locCost + heuristic(xLoc+1, yLoc+1, goal)));
     	}
     	
     	return locList;
     }
     
+    /**
+     * Returns whether or not the location is in the map and if there is nothing currently blocking the space.
+     * @param x
+     * @param y
+     * @param xExtent
+     * @param yExtent
+     * @param enemyFootmanLoc
+     * @param resourceLocations
+     * @return
+     */
     private boolean isValid(int x, int y, int xExtent, int yExtent, MapLocation enemyFootmanLoc, Set<MapLocation> resourceLocations) {
-        MapLocation temp = (new MapLocation(x, y, null, 0)); 
+       //create a new temporary maplocation to check against the enemy and resourcelocations
+    	MapLocation temp = (new MapLocation(x, y, null, 0)); 
     	if(x>=0 && x<xExtent &&
             y>=0 && y<yExtent &&
             (enemyFootmanLoc==null || !temp.equals(enemyFootmanLoc)) &&
@@ -440,11 +485,22 @@ public class AstarAgent extends Agent {
               return false;
          }
     }
-    
+    /**
+     * Heuristic function for calculating estimated cost to goal.
+     * @param x
+     * @param y
+     * @param goal
+     * @return
+     */
     private int heuristic(int x, int y, MapLocation goal) {
          return Math.max(Math.abs(goal.x - x), Math.abs(goal.y - y));
     }
     
+    /**
+     * Comparator to compare locations within the queue.
+     * @author Jake
+     *
+     */
     private class LocationComparator implements Comparator<MapLocation> {
 
 		@Override
